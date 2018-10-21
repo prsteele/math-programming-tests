@@ -1,0 +1,28 @@
+name:                math-programming-api-tests
+version:             0.1.0.0
+github:              "prsteele/math-programming-api-tests"
+license:             BSD3
+author:              "Patrick Steele"
+maintainer:          "steele.pat@gmail.com"
+copyright:           "2018 Patrick Steele"
+
+# Metadata used when publishing your package
+synopsis:            Utility functions for testing implementations of the math-programming library.
+category:            Math
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+description:         Please see the README on GitHub at <https://github.com/prsteele/math-programming-api-tests#readme>
+
+dependencies:
+  - base >= 4.7 && < 5
+  - math-programming
+  - tasty >= 1.1.0.2 && < 1.2
+  - tasty-hunit >= 0.10.0.1 && < 0.11
+
+library:
+  source-dirs: src
+  ghc-options:
+    - -Wall
