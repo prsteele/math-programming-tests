@@ -6,6 +6,7 @@ import Test.Tasty
 import Text.Printf
 
 import Math.Programming
+import Math.Programming.Tests.Api
 import Math.Programming.Tests.IP
 import Math.Programming.Tests.LP
 
@@ -16,7 +17,8 @@ makeAllTests
   -> (m () -> IO ())  -- ^ The runner for the API being tested.
   -> TestTree         -- ^ The resulting test suite.
 makeAllTests apiName runner
-  = testGroup (printf "API tests (%s)" apiName)
-    [ makeLPTests runner
+  = testGroup (printf "Math.Programming tests (%s)" apiName)
+    [ makeApiTests runner
+    , makeLPTests runner
     , makeIPTests runner
     ]

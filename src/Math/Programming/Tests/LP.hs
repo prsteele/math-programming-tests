@@ -10,7 +10,7 @@ import Text.Printf
 import Math.Programming
 
 makeLPTests
-  :: (PrintfArg a, RealFrac a, MonadIO m, IPMonad m a)
+  :: (PrintfArg a, RealFrac a, MonadIO m, LPMonad m a)
   => (m () -> IO ())  -- ^ The runner for the API being tested.
   -> TestTree         -- ^ The resulting test suite.
 makeLPTests runner = testGroup "LP problems"
