@@ -1,6 +1,6 @@
-name:                math-programming-api-tests
+name:                math-programming-tests
 version:             0.1.0.0
-github:              "prsteele/math-programming-api-tests"
+github:              "prsteele/math-programming-tests"
 license:             BSD3
 author:              "Patrick Steele"
 maintainer:          "steele.pat@gmail.com"

@@ -1,4 +1,4 @@
 .stack-work/
 local-stack.yaml
-math-programming-api-tests.cabal
+math-programming-tests.cabal
 *~
