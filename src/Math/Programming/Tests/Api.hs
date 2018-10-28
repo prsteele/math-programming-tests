@@ -1,7 +1,10 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Math.Programming.Tests.Api where
 
 import Control.Monad.IO.Class
 import Test.Tasty
+import Test.Tasty.QuickCheck
 import Test.Tasty.HUnit
 import Text.Printf
 
@@ -16,6 +19,7 @@ makeApiTests runner = testGroup "API tests"
   , testCase "Set/get constraint names" (runner setGetConstraintName)
   ]
 
+-- | We should be able to set and retrieve variable names
 setGetVariableName :: (MonadIO m, LPMonad m a) => m ()
 setGetVariableName = do
   let name = "foo"
@@ -23,6 +27,7 @@ setGetVariableName = do
   vName <- getVariableName x
   liftIO $ vName @?= name
 
+-- | We should be able to set and retrieve constraint names
 setGetConstraintName :: (MonadIO m, LPMonad m a) => m ()
 setGetConstraintName = do
   let name = "foo"
@@ -30,3 +35,48 @@ setGetConstraintName = do
   c <- addConstraint (1 *: x .>= 0) `named` name
   cName <- getConstraintName c
   liftIO $ cName @?= name
+
+data Action
+  = AddVariable
+  | AddConstraint
+  | AddThenDeleteVariable
+  | AddThenDeleteConstraint
+  deriving
+    ( Enum
+    , Show
+    )
+
+instance Arbitrary Action where
+  arbitrary = elements actions
+    where
+      actions = [AddVariable .. AddThenDeleteConstraint]
+
+newtype LPActions m b = LPActions (m ())
+
+instance (LPMonad m b) => Arbitrary (LPActions m b) where
+  arbitrary = LPActions <$> sized lpActions
+
+lpActions :: (LPMonad m b) => Int -> Gen (m ())
+lpActions remaining
+  | remaining <= 0 = return (return ())
+  | otherwise      = do
+      action <- arbitrary
+      case action of
+        AddVariable
+          -> return (addVariable >> return ())
+        AddThenDeleteVariable
+          -> bindOver addVariable deleteVariable <$> lpActions (remaining - 1)
+        _ -> return (return ())
+
+-- | Execute the monadic bind (>>=), with some other actions taken in
+-- between.
+bindOver
+  :: (Monad m)
+  => m a         -- ^ The action providing the passed value
+  -> (a -> m b)  -- ^ The function to bind to
+  -> m ()        -- ^ The intermediate actions
+  -> m b         -- ^ The resulting value
+bindOver action fn intermediate = action >>= (\x -> intermediate >> fn x)
+
+arbitraryLPActionsProp :: LPActions m b -> m ()
+arbitraryLPActionsProp (LPActions actions) = actions
