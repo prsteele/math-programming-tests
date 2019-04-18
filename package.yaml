@@ -1,5 +1,5 @@
 name:                math-programming-tests
-version:             0.1.0.0
+version:             0.2.0
 github:              "prsteele/math-programming-tests"
 license:             BSD3
 author:              "Patrick Steele"
@@ -18,7 +18,7 @@ description:         Please see the README on GitHub at <https://github.com/prst
 
 dependencies:
   - base >= 4.7 && < 5
-  - math-programming >= 0.1.0.0 && < 0.2
+  - math-programming >= 0.2.0 && < 0.3
   - tasty >= 1.2 && < 1.3
   - tasty-hunit >= 0.10.0.1 && < 0.11
   - tasty-quickcheck >= 0.10 && < 0.11
