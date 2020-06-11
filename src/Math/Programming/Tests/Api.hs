@@ -1,17 +1,17 @@
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Math.Programming.Tests.Api where
 
-import Control.Monad.IO.Class
-import Test.Tasty
-import Test.Tasty.QuickCheck
-import Test.Tasty.HUnit
-import Text.Printf
+import           Control.Monad.IO.Class
+import           Test.Tasty
+import           Test.Tasty.HUnit
+import           Test.Tasty.QuickCheck
 
-import Math.Programming
+import           Math.Programming
 
 makeApiTests
-  :: (PrintfArg a, RealFrac a, MonadIO m, LPMonad m a)
+  :: (Num (Numeric m), MonadIO m, LPMonad m)
   => (m () -> IO ())  -- ^ The runner for the API being tested.
   -> TestTree         -- ^ The resulting test suite.
 makeApiTests runner = testGroup "API tests"
@@ -20,7 +20,7 @@ makeApiTests runner = testGroup "API tests"
   ]
 
 -- | We should be able to set and retrieve variable names
-setGetVariableName :: (MonadIO m, LPMonad m a) => m ()
+setGetVariableName :: (MonadIO m, LPMonad m) => m ()
 setGetVariableName = do
   let name = "foo"
   x <- addVariable `named` name
@@ -28,11 +28,11 @@ setGetVariableName = do
   liftIO $ vName @?= name
 
 -- | We should be able to set and retrieve constraint names
-setGetConstraintName :: (MonadIO m, LPMonad m a) => m ()
+setGetConstraintName :: (Num (Numeric m), MonadIO m, LPMonad m) => m ()
 setGetConstraintName = do
   let name = "foo"
   x <- addVariable
-  c <- addConstraint (1 *: x .>= 0) `named` name
+  c <- addConstraint (x @>=# 0) `named` name
   cName <- getConstraintName c
   liftIO $ cName @?= name
 
@@ -51,12 +51,12 @@ instance Arbitrary Action where
     where
       actions = [AddVariable .. AddThenDeleteConstraint]
 
-newtype LPActions m b = LPActions (m ())
+newtype LPActions m = LPActions (m ())
 
-instance (LPMonad m b) => Arbitrary (LPActions m b) where
+instance LPMonad m => Arbitrary (LPActions m) where
   arbitrary = LPActions <$> sized lpActions
 
-lpActions :: (LPMonad m b) => Int -> Gen (m ())
+lpActions :: LPMonad m => Int -> Gen (m ())
 lpActions remaining
   | remaining <= 0 = return (return ())
   | otherwise      = do
@@ -78,5 +78,5 @@ bindOver
   -> m b         -- ^ The resulting value
 bindOver action fn intermediate = action >>= (\x -> intermediate >> fn x)
 
-arbitraryLPActionsProp :: LPActions m b -> m ()
+arbitraryLPActionsProp :: LPActions m -> m ()
 arbitraryLPActionsProp (LPActions actions) = actions

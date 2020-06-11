@@ -1,14 +1,15 @@
+{-# LANGUAGE FlexibleContexts #-}
 module Math.Programming.Tests.IP where
 
-import Control.Monad.IO.Class
-import Test.Tasty
-import Test.Tasty.HUnit
-import Text.Printf
+import           Control.Monad.IO.Class
+import           Test.Tasty
+import           Test.Tasty.HUnit
+import           Text.Printf
 
-import Math.Programming
+import           Math.Programming
 
 makeIPTests
-  :: (PrintfArg a, RealFrac a, MonadIO m, IPMonad m a)
+  :: (PrintfArg (Numeric m), RealFrac (Numeric m), MonadIO m, IPMonad m)
   => (m () -> IO ())  -- ^ The runner for the API being tested.
   -> TestTree         -- ^ The resulting test suite.
 makeIPTests runner = testGroup "IP problems"
@@ -27,15 +28,14 @@ makeIPTests runner = testGroup "IP problems"
 -- @
 --
 -- The optimal solution to this MIP is x = 2, y = 1.1.
-simpleMIPTest :: (PrintfArg a, RealFrac a, MonadIO m, IPMonad m a) => m ()
+simpleMIPTest :: (PrintfArg (Numeric m), RealFrac (Numeric m), MonadIO m, IPMonad m) => m ()
 simpleMIPTest = do
   x <- addVariable `asKind` Integer `within` Interval 0 5
   y <- addVariable `asKind` Continuous `within` Interval 0 5
-  _ <- addConstraint (1 *: x .>= 1.1)
-  _ <- addConstraint (1 *: y .>= 1.1)
-  setObjective (1 *: x .+. 1 *: y)
+  _ <- addConstraint (x @>=# 1.1)
+  _ <- addConstraint (y @>=# 1.1)
+  setObjective (x @+@ y)
   setSense Minimization
-  _ <- optimizeLP
   status <- optimizeIP
 
   -- Check that we reached optimality
