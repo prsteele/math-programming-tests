@@ -22,6 +22,7 @@ dependencies:
   - tasty
   - tasty-hunit
   - tasty-quickcheck
+  - text
 
 library:
   source-dirs: src

@@ -23,7 +23,9 @@ makeApiTests runner = testGroup "API tests"
 setGetVariableName :: (MonadIO m, LPMonad m) => m ()
 setGetVariableName = do
   let name = "foo"
-  x <- addVariable `named` name
+  x <- free
+  setVariableName x name
+
   vName <- getVariableName x
   liftIO $ vName @?= name
 
@@ -31,8 +33,8 @@ setGetVariableName = do
 setGetConstraintName :: (Num (Numeric m), MonadIO m, LPMonad m) => m ()
 setGetConstraintName = do
   let name = "foo"
-  x <- addVariable
-  c <- addConstraint (x @>=# 0) `named` name
+  x <- free
+  c <- (x @>=# 0) `named` name
   cName <- getConstraintName c
   liftIO $ cName @?= name
 
@@ -65,7 +67,7 @@ lpActions remaining
         AddVariable
           -> return (addVariable >> return ())
         AddThenDeleteVariable
-          -> bindOver addVariable deleteVariable <$> lpActions (remaining - 1)
+          -> bindOver addVariable removeVariable <$> lpActions (remaining - 1)
         _ -> return (return ())
 
 -- | Execute the monadic bind (>>=), with some other actions taken in

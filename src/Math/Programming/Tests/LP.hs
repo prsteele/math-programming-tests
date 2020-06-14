@@ -93,13 +93,14 @@ dietProblemTest =
     forM_ nutrients $ \nutrient -> do
       let lhs = exprSum [nutrition nutrient food #*@ v | (food, v) <- amounts]
           (lower, upper) = nutrientBounds nutrient
-      _ <- (addConstraint $ lhs .<=# upper) `named` (nutrientMaxName nutrient)
-      (addConstraint $ lhs .>=# lower) `named` (nutrientMinName nutrient)
+      _ <- (lhs .<=# upper) `named` (nutrientMaxName nutrient)
+      _ <- (lhs .>=# lower) `named` (nutrientMinName nutrient)
+      pure ()
 
     -- Set the objective
-    let objective = exprSum [cost food #*@ v | (food, v) <- amounts]
-    setObjective objective
-    setSense Minimization
+    let objectiveExpr = exprSum [cost food #*@ v | (food, v) <- amounts]
+    objective <- addObjective objectiveExpr
+    setObjectiveSense objective Minimization
 
     -- Solve the problem
     status <- optimizeLP
@@ -109,7 +110,7 @@ dietProblemTest =
 
     -- Check the variable values
     forM_ amounts $ \(food, v) -> do
-      x <- getValue v
+      x <- getVariableValue v
 
       let correct = expected food
           msg = printf
@@ -120,7 +121,7 @@ dietProblemTest =
       liftIO $ assertBool msg (abs (x - correct) <= 1e-1)
 
     -- Check the objective value
-    objectiveValue <- evalExpr objective
+    objectiveValue <- evalExpr objectiveExpr
     let msg = printf
               "Objective should be about %.2f, but is %.3f"
               expectedCost
