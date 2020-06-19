@@ -1,4 +1,5 @@
 .stack-work/
 local-stack.yaml
+local-stack.yaml.lock
 math-programming-tests.cabal
 *~

@@ -1,5 +1,5 @@
 name:                math-programming-tests
-version:             0.1.0.0
+version:             0.3.0
 github:              "prsteele/math-programming-tests"
 license:             BSD3
 author:              "Patrick Steele"
@@ -17,10 +17,12 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/prsteele/math-programming-api-tests#readme>
 
 dependencies:
-  - base >= 4.7 && < 5
+  - base
   - math-programming
-  - tasty >= 1.1.0.2 && < 1.2
-  - tasty-hunit >= 0.10.0.1 && < 0.11
+  - tasty
+  - tasty-hunit
+  - tasty-quickcheck
+  - text
 
 library:
   source-dirs: src
