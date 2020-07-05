@@ -4,4 +4,4 @@ packages:
   - .
 
 extra-deps:
-  - math-programming-0.3.0
+  - math-programming-0.4.0
